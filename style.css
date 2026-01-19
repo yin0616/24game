@@ -82,20 +82,23 @@ pre {
 @media (max-width: 600px) {
 
   .card-input {
+    display: grid;             
     grid-template-columns: repeat(2, 1fr);
     gap: 14px;
+    justify-items: center;
   }
 
   .card {
+    width: 100%;
+    max-width: 90px;
     font-size: 1.8rem;
   }
 
-  h1 {
-    font-size: 1.4rem;
-  }
-
   .container {
-    padding-top: 16px;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 16px;
   }
 }
 
