@@ -78,3 +78,24 @@ pre {
   overflow-y: auto;
   line-height: 1.6;
 }
+
+@media (max-width: 600px) {
+
+  .card-input {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .card {
+    font-size: 1.8rem;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+  }
+
+  .container {
+    padding-top: 16px;
+  }
+}
+
