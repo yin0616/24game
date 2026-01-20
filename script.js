@@ -1,5 +1,5 @@
 function cardValue(value) {
-  value = value.toUpperCase();
+  value = value.trim().toUpperCase();
 
   if (value === "A" || value==="a") return 1;
   if (value === "J"|| value==="j") return 11;
@@ -15,8 +15,7 @@ function cardValue(value) {
 
 const EPS = 1e-6;
 
-function dfs(items, ops, results) {
-
+function dfs(items, results) {
   if (items.length === 1) {
     if (Math.abs(items[0].value - 24) < EPS) {
       results.add(items[0].expr);
@@ -30,77 +29,37 @@ function dfs(items, ops, results) {
 
       const a = items[i];
       const b = items[j];
-
       const rest = items.filter((_, k) => k !== i && k !== j);
 
-      for (let k = 0; k < ops.length; k++) {
-        const op = ops[k];
-        const nextOps = ops.filter((_, x) => x !== k);
-
+      for (const op of ["+", "-", "*", "/"]) {
         let candidates = [];
 
-        if (op === "+") {
-          candidates.push({
-            value: a.value + b.value,
-            expr: `(${a.expr}+${b.expr})`
-          });
-        }
+        if (op === "+")
+          candidates.push({ value: a.value + b.value, expr: `(${a.expr}+${b.expr})` });
 
-        if (op === "-") {
+        if (op === "-")
           candidates.push(
-            {
-              value: a.value - b.value,
-              expr: `(${a.expr}-${b.expr})`
-            },
-            {
-              value: b.value - a.value,
-              expr: `(${b.expr}-${a.expr})`
-            }
+            { value: a.value - b.value, expr: `(${a.expr}-${b.expr})` },
+            { value: b.value - a.value, expr: `(${b.expr}-${a.expr})` }
           );
-        }
 
-        if (op === "*") {
-          candidates.push({
-            value: a.value * b.value,
-            expr: `(${a.expr}*${b.expr})`
-          });
-        }
+        if (op === "*")
+          candidates.push({ value: a.value * b.value, expr: `(${a.expr}*${b.expr})` });
 
         if (op === "/") {
-          if (Math.abs(b.value) > EPS) {
-            candidates.push({
-              value: a.value / b.value,
-              expr: `(${a.expr}/${b.expr})`
-            });
-          }
-          if (Math.abs(a.value) > EPS) {
-            candidates.push({
-              value: b.value / a.value,
-              expr: `(${b.expr}/${a.expr})`
-            });
-          }
+          if (Math.abs(b.value) > EPS)
+            candidates.push({ value: a.value / b.value, expr: `(${a.expr}/${b.expr})` });
+          if (Math.abs(a.value) > EPS)
+            candidates.push({ value: b.value / a.value, expr: `(${b.expr}/${a.expr})` });
         }
 
         for (const c of candidates) {
-          dfs([...rest, c], nextOps, results);
+          dfs([...rest, c], results);
         }
       }
     }
   }
 }
-
-function combinations(arr, k) {
-  if (k === 0) return [[]];
-  if (arr.length < k) return [];
-
-  const [first, ...rest] = arr;
-
-  return [
-    ...combinations(rest, k - 1).map(c => [first, ...c]),
-    ...combinations(rest, k)
-  ];
-}
-
 
 function solve() {
   const summary = document.getElementById("summary");
@@ -108,25 +67,19 @@ function solve() {
 
   try {
     const inputs = [
-      document.getElementById("c1").value.trim(),
-      document.getElementById("c2").value.trim(),
-      document.getElementById("c3").value.trim(),
-      document.getElementById("c4").value.trim()
+      c1.value,
+      c2.value,
+      c3.value,
+      c4.value
     ];
 
-    const items = inputs.map(s => ({
-      value: cardValue(s),
-      expr: s.toUpperCase()
+    const items = inputs.map(v => ({
+      value: cardValue(v),
+      expr: v.trim().toUpperCase()
     }));
 
     const results = new Set();
-
-    const ALL_OPS = ["+", "-", "*", "/"];
-    const opSets = combinations(ALL_OPS, 3);
-
-    for (const ops of opSets) {
-      dfs(items, ops, results);
-    }
+    dfs(items, results);
 
     if (results.size === 0) {
       summary.textContent = "無解";
@@ -137,9 +90,8 @@ function solve() {
         [...results].map(e => `${e} = 24`).join("\n");
     }
 
-  } catch (e) {
+  } catch (err) {
     summary.textContent = "輸入錯誤";
-    output.textContent = e.message;
+    output.textContent = err.message;
   }
 }
-
